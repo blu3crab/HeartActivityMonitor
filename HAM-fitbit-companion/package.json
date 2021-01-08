@@ -1,0 +1,23 @@
+{
+  "devDependencies": {
+    "@fitbit/sdk": "~5.0.0"
+  },
+  "fitbit": {
+    "appUUID": "cc918e1c-a456-4a7b-ab92-616b2adce803",
+    "appType": "app",
+    "appDisplayName": "AhaFitbitCompanion",
+    "iconFile": "resources/icon.png",
+    "wipeColor": "#8bc34a",
+    "requestedPermissions": [],
+    "buildTargets": [
+      "atlas",
+      "vulcan"
+    ],
+    "i18n": {
+      "en-US": {
+        "name": "AhaFitbitCompanion"
+      }
+    },
+    "defaultLanguage": "en-US"
+  }
+}
