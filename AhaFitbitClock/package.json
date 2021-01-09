@@ -8,7 +8,12 @@
     "appDisplayName": "AhaFitbitCompanion",
     "iconFile": "resources/icon.png",
     "wipeColor": "#8bc34a",
-    "requestedPermissions": [],
+    "requestedPermissions": [
+      "access_heart_rate",
+      "access_user_profile",
+      "run_background",
+      "access_internet"
+    ],
     "buildTargets": [
       "atlas",
       "vulcan"

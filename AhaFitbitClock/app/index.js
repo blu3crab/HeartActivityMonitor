@@ -5,6 +5,14 @@ import document from "document";
 
 import * as messaging from "messaging";
 
+import {viewHeartClock} from "./viewHeartClock.js"
+import {getHeartRate} from "./viewHeartClock.js"
+import {getCurrentTimeLabel} from "./viewHeartClock.js"
+var timestampText = "xx:yy"
+// show heart clock
+viewHeartClock()
+
+// 
 messaging.peerSocket.addEventListener("open", (evt) => {
   console.log("App - Ready to send or receive messages");
   sendMessage();
@@ -18,11 +26,14 @@ let demotext = document.getElementById("demotext");
 demotext.text = "Fitbit Studio rocks!";
 
 function sendMessage() {
+  timestampText = getCurrentTimeLabel()
   // Sample data
   const data = {
     title: 'My test data',
     isTest: true,
-    records: [1, 2, 3, 4]
+    records: [1, 2, 3, 4],
+    heartRate: getHeartRate(),
+    timestamp: timestampText
   }
 
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
