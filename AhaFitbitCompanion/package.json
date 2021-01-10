@@ -3,18 +3,17 @@
     "@fitbit/sdk": "~5.0.0"
   },
   "fitbit": {
-    "appUUID": "f0b7a655-5041-45fd-bcd6-61f2a024f4bd",
-    "appType": "clockface",
-    "appDisplayName": "AhaFitbitClock",
+    "appUUID": "cc918e1c-a456-4a7b-ab92-616b2adce803",
+    "appType": "app",
+    "appDisplayName": "AhaHeartActivityMonitor",
     "iconFile": "resources/icon.png",
-    "wipeColor": "",
+    "wipeColor": "#8bc34a",
     "requestedPermissions": [
-      "access_activity",
-      "access_user_profile",
-      "access_location",
-      "access_internet",
       "access_heart_rate",
-      "run_background"
+      "access_user_profile",
+      "run_background",
+      "access_internet",
+      "access_activity"
     ],
     "buildTargets": [
       "atlas",
@@ -22,7 +21,7 @@
     ],
     "i18n": {
       "en-US": {
-        "name": "AhaFitbitClock"
+        "name": "AhaHeartActivityMonitor"
       }
     },
     "defaultLanguage": "en-US"
