@@ -1,5 +1,5 @@
 //
-// senseHeartClock.js - sense heart rate & clock
+// heartActivityMonitor.js - monitor heart rate at 1 sec intervals with clock at 60 sec interval
 //
 import clock from "clock";
 import document from "document";
@@ -24,12 +24,6 @@ export function getHeartRate() {
   return hrm.heartRate
 }
 export function start() {
-  // Get a handle on the <text> element
-  //const currentTimeLabel = document.getElementById("currentTimeLabel");
-  //const heartRateLabel = document.getElementById("heartRateLabel");
-
-  //const hrm = new HeartRateSensor({ frequency: 1 });
-
   // Update the clock every minute
   clock.granularity = "minutes";
 
@@ -46,9 +40,6 @@ export function start() {
     }
     let mins = util.zeroPad(today.getMinutes());
     currentTimeLabel.text = `${hours}:${mins}`;
-    //heartRateLabel.text = "93"
-    // message.openMessaging();
-    // message.sendMessage("xx:yy", "99")
   }
   if (BodyPresenceSensor) {
     const body = new BodyPresenceSensor();
@@ -63,36 +54,26 @@ export function start() {
     });
     body.start();
   }
-  // update the HR
+  // update heart rate
   if (HeartRateSensor && appbit.permissions.granted("access_heart_rate")) {
-  //if (HeartRateSensor) {
-    //const hrm = new HeartRateSensor({ frequency: 1, batch: 2 });
-    //const hrm = new HeartRateSensor({ frequency: 1 });
     hrm.addEventListener("reading", () => {
       console.log(`Current heart rate: ${hrm.heartRate}`);
       heartRateLabel.text = hrm.heartRate
       console.log(`Open messaging: ${currentTimeLabel.text} - ${hrm.heartRate}`);
       message.openMessaging(currentTimeLabel.text, hrm.heartRate)
-      // for (let index = 0; index < hrm.readings.timestamp.length; index++) {
-      //   console.log(
-      //     `HeartRateSensor Reading: \
-      //       timestamp=${hrm.readings.timestamp[index]}, \
-      //       [${hrm.readings.bpm[index]}]`
-      //   );
-      // }
     });
 
     display.addEventListener("change", () => {
-      // Automatically stop the sensor when the screen is off to conserve battery
+      // stop the sensor when the screen is off to conserve battery
       display.on ? hrm.start() : hrm.stop();
     });
-
-    //hrm.start();
   }
   else if (!appbit.permissions.granted("access_heart_rate")) {
+    // show permission not granted
     heartRateLabel.text = "XX"
   }
   else {
+    // show heart sensor not available
     heartRateLabel.text = "..."
   }
 }
