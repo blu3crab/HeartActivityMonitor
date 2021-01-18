@@ -9,7 +9,7 @@ import * as message from "./util/message.js";
 
 import { HeartRateSensor } from "heart-rate";
 import { display } from "display";
-import { me as appbit } from "appbit";
+import { me as appbit} from "appbit";
 import { BodyPresenceSensor } from "body-presence";
 
 // Get a handle on the <text> element
@@ -17,11 +17,13 @@ const currentTimeLabel = document.getElementById("currentTimeLabel");
 const heartRateLabel = document.getElementById("heartRateLabel");
 const hrm = new HeartRateSensor({ frequency: 1 });
 
-const HRM_BATCH_SIZE = 2;
+const BATCH_RELAY_MAX = 1;
+const HRM_BATCH_SIZE = 60;
 const NADA_TIMESTAMP = "xx:yy";
-var hrmBatchTimestamp = NADA_TIMESTAMP;
-var hrmCount = 0;
-var hrmBatch = new Array(HRM_BATCH_SIZE);
+let batchRelayCount = 0;
+let hrmBatchTimestamp = NADA_TIMESTAMP;
+let hrmCount = 0;
+let hrmBatch = new Array(HRM_BATCH_SIZE);
 
 export function getCurrentTimeLabel() {
   return currentTimeLabel.text
@@ -30,6 +32,9 @@ export function getHeartRate() {
   return hrm.heartRate
 }
 export function start() {
+  // set app to not timeout due to inactivity
+  appbit.appTimeoutEnabled = false;
+  //console.log(`App - id: ${me.Appbit.applicationId} with timeoutEnabled = ${me.appTimeoutEnabled}`);
   // Update the clock every minute
   clock.granularity = "minutes";
   
@@ -79,15 +84,21 @@ export function start() {
       console.log(`App - Current heart rate: ${hrm.heartRate}`);
       heartRateLabel.text = hrm.heartRate
       
-      // add metric to batch
-      hrmBatch[hrmCount++] = hrm.heartRate;
-      if (hrmCount >= HRM_BATCH_SIZE) {
-        // send batch
-        console.log(`App - Open messaging: ${hrmBatchTimestamp} - ${hrmBatch}`);
-        message.openMessaging(hrmBatchTimestamp, hrmBatch)
-        // clear batch
-        hrmBatchTimestamp = NADA_TIMESTAMP;
-        hrmCount = 0;
+      // if batches relays is less than max messages sent
+      if (batchRelayCount < BATCH_RELAY_MAX) {
+        console.log(`App - hrm batch size: ${hrmCount}`);
+        // add metric to batch
+        hrmBatch[hrmCount++] = hrm.heartRate;
+        if (hrmCount >= HRM_BATCH_SIZE) {
+          // send batch
+          console.log(`App - Open messaging: ${hrmBatchTimestamp} - ${hrmBatch}`);
+          message.openMessaging(hrmBatchTimestamp, hrmBatch)
+          // clear batch
+          hrmBatchTimestamp = NADA_TIMESTAMP;
+          hrmCount = 0;
+          // bump relay count
+          ++batchRelayCount;
+        }
       }
     });
 
