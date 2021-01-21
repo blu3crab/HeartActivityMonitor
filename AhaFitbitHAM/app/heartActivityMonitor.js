@@ -53,8 +53,11 @@ export function start() {
     currentTimeLabel.text = `${hours}:${mins}`;
     
     if (hrmBatchTimestamp == NADA_TIMESTAMP) {
-      hrmBatchTimestamp = currentTimeLabel.text;
+      //hrmBatchTimestamp = currentTimeLabel.text;
+      let secs = util.zeroPad(today.getSeconds());
+      hrmBatchTimestamp = `${hours}:${mins}:${secs}`;
       console.log(`App - setting batch timestamp: ${hrmBatchTimestamp}`);
+    }
       // TODO: initial load or resuming after presense off-wrist condition
       // if ()
       //   // send reset signal
@@ -63,7 +66,6 @@ export function start() {
       //   console.log(`App - Open messaging: ${hrmBatchTimestamp} - ${hrmBatch}`);
       //   message.openMessaging(hrmBatchTimestamp, hrmBatch)
       // }
-    }
   }
   if (BodyPresenceSensor) {
     const body = new BodyPresenceSensor();
@@ -84,9 +86,10 @@ export function start() {
       console.log(`App - Current heart rate: ${hrm.heartRate}`);
       heartRateLabel.text = hrm.heartRate
       
-      // if batches relays is less than max messages sent
+      // if batches relays is less than allowed max messages
       if (batchRelayCount < BATCH_RELAY_MAX) {
         console.log(`App - hrm batch size: ${hrmCount}`);
+        // TODO: if assigning 0, set time
         // add metric to batch
         hrmBatch[hrmCount++] = hrm.heartRate;
         if (hrmCount >= HRM_BATCH_SIZE) {
@@ -98,6 +101,7 @@ export function start() {
           hrmCount = 0;
           // bump relay count
           ++batchRelayCount;
+          console.log(`App - resetting batch timestamp: ${hrmBatchTimestamp} after batch ${batchRelayCount}`);
         }
       }
     });
