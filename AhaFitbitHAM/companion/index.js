@@ -15,8 +15,26 @@ messaging.peerSocket.addEventListener("error", (err) => {
 messaging.peerSocket.addEventListener("message", (evt) => {
   console.log(JSON.stringify(evt.data));
   
-    // Send information to the server
-  fetch('http://localhost:/heartRate', {
+  // get ham info
+  console.log('http://127.0.0.1:8080/about GET');
+
+  //fetch('http://192.168.1.6:8080/about', {
+  fetch('http://127.0.0.1:8080/about', {
+    method:'get',
+  }).then(function(response) {
+    if (!response.ok) {
+      console.log(response.status + ': ' + response.statusText);
+      return;
+    }
+    console.log(response.text());
+  }).catch(function (err){
+    console.log(`fetch https get failure - ${err}`)
+  })
+
+  console.log('http://127.0.0.1:8080/heartRate POST');
+  //fetch('http://localhost:8080/heartRate', {
+  //fetch('http://192.168.1.6:8080/heartRate', {
+  fetch('http://127.0.0.1:8080/heartRate', {
     method:'post',
     headers: {
      'Content-Type': 'application/json'
@@ -29,7 +47,7 @@ messaging.peerSocket.addEventListener("message", (evt) => {
     }
     console.log('enviado el paquete...');
   }).catch(function (err){
-    console.log(err)
+    console.log(`fetch https post failure - ${err}`)
   })
 });
 
