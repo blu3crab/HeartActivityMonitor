@@ -17,8 +17,9 @@ const currentTimeLabel = document.getElementById("currentTimeLabel");
 const heartRateLabel = document.getElementById("heartRateLabel");
 const hrm = new HeartRateSensor({ frequency: 1 });
 
-const BATCH_RELAY_MAX = 1;
-const HRM_BATCH_SIZE = 60;
+const BATCH_RELAY_MAX = 8;
+//const HRM_BATCH_SIZE = 60;
+const HRM_BATCH_SIZE = 8;
 const NADA_TIMESTAMP = "xx:yy";
 let batchRelayCount = 0;
 let hrmBatchTimestamp = NADA_TIMESTAMP;
@@ -38,6 +39,9 @@ export function start() {
   // Update the clock every minute
   clock.granularity = "minutes";
   
+  console.log(`App - message.openMessaging invoked...`);
+  message.openMessaging()
+
   // Update the currentTime <text> element every tick with the current time
   clock.ontick = (evt) => {
     let today = evt.date;
@@ -95,7 +99,7 @@ export function start() {
         if (hrmCount >= HRM_BATCH_SIZE) {
           // send batch
           console.log(`App - Open messaging: ${hrmBatchTimestamp} - ${hrmBatch}`);
-          message.openMessaging(hrmBatchTimestamp, hrmBatch)
+          message.sendMessage(hrmBatchTimestamp, hrmBatch)
           // clear batch
           hrmBatchTimestamp = NADA_TIMESTAMP;
           hrmCount = 0;

@@ -11,11 +11,14 @@ let msgSequence = 0;
 let msgTally = 0;
 let msgReturnCode = false;
 
-export function openMessaging(timestampText, heartRateBatch) {
+//export function openMessaging(timestampText, heartRateBatch) {
+export function openMessaging() {
+  console.log("App - openMessaging...");
   messaging.peerSocket.addEventListener("open", (evt) => {
-    console.log("App - Ready to send or receive messages");
-    msgReturnCode = sendMessage(timestampText, heartRateBatch);
-    return msgReturnCode;
+      console.log("App - addEventListener open...");
+    //console.log("App - sendMessage at ${timestampText}");
+    //msgReturnCode = sendMessage(timestampText, heartRateBatch);
+    //return msgReturnCode;
   });
 
   messaging.peerSocket.addEventListener("error", (err) => {
@@ -24,7 +27,7 @@ export function openMessaging(timestampText, heartRateBatch) {
 }
 
 
-function sendMessage(timestampText, heartRateBatch) {
+export function sendMessage(timestampText, heartRateBatch) {
   const data = {
     title: 'Heart Rate Metrics',
     msgSequence: msgSequence,
@@ -33,6 +36,7 @@ function sendMessage(timestampText, heartRateBatch) {
     records: [1, 2, 3, 4],
     heartRate: heartRateBatch
   }
+  console.log(`App - sendMessage at ${timestampText}`);
 
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
     if (messaging.peerSocket.bufferedAmount < MESSAGE_BUFFER_MAX) {
@@ -46,9 +50,10 @@ function sendMessage(timestampText, heartRateBatch) {
       // send success
       return true;
     }
-    console.log(`App - send failure buffered amount: ${messaging.peerSocket.bufferedAmount}`);
+    console.log(`App - send failure buffered amount: ${messaging.peerSocket.bufferedAmount} fails at max ${MESSAGE_BUFFER_MAX}`);
+    return false;
   }
   // send failure
-  console.log(`App - send failure buffered amount: ${messaging.peerSocket.readyState}`);
+  console.log(`App - messaging.peerSocket.readyState NOT open...`);
   return false; 
 }
