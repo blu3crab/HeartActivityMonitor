@@ -17,8 +17,9 @@ const currentTimeLabel = document.getElementById("currentTimeLabel");
 const heartRateLabel = document.getElementById("heartRateLabel");
 const hrm = new HeartRateSensor({ frequency: 1 });
 
-const BATCH_RELAY_MAX = 8;
-//const HRM_BATCH_SIZE = 60;
+// const BATCH_RELAY_MAX = 8;
+const BATCH_RELAY_MAX = 99999;
+// const HRM_BATCH_SIZE = 60;
 const HRM_BATCH_SIZE = 8;
 const NADA_TIMESTAMP = "xx:yy";
 let batchRelayCount = 0;
@@ -110,10 +111,13 @@ export function start() {
       }
     });
 
-    display.addEventListener("change", () => {
-      // stop the sensor when the screen is off to conserve battery
-      display.on ? hrm.start() : hrm.stop();
-    });
+    // display.addEventListener("change", () => {
+    //   // stop the sensor when the screen is off to conserve battery
+    //   display.on ? hrm.start() : hrm.stop();
+    // });
+    if (display.aodAllowed && display.aodActive) {
+      console.log(`App - AOD allowed/active`);
+    }
   }
   else if (!appbit.permissions.granted("access_heart_rate")) {
     // show permission not granted

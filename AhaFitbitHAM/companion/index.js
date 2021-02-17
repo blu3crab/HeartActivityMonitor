@@ -23,7 +23,7 @@ messaging.peerSocket.addEventListener("message", (evt) => {
     method:'get',
   }).then(function(response) {
     if (!response.ok) {
-      console.log(response.status + ': ' + response.statusText);
+      console.log("Companion - GET " + response.status + ': ' + response.statusText);
       return;
     }
     console.log(response.text());
@@ -42,7 +42,7 @@ messaging.peerSocket.addEventListener("message", (evt) => {
     body:JSON.stringify(evt.data)
   }).then(function(result) {
     if (!result.ok) {
-      console.log(result.status + ': ' + result.statusText);
+      console.log("Companion - POST " + result.status + ': ' + result.statusText);
       return;
     }
     console.log('enviado el paquete...');
