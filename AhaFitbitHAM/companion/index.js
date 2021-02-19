@@ -22,11 +22,12 @@ messaging.peerSocket.addEventListener("message", (evt) => {
   fetch('http://127.0.0.1:8080/about', {
     method:'get',
   }).then(function(response) {
+    console.log("Companion - GET " + response.status + ': ' + response.statusText);
     if (!response.ok) {
-      console.log("Companion - GET " + response.status + ': ' + response.statusText);
+      console.log("Companion - GET response !OK ->" + response.status + ': ' + response.statusText);
       return;
     }
-    console.log(response.text());
+    console.log("Companion - GET returns ->" + response.text());
   }).catch(function (err){
     console.log(`fetch https get failure - ${err}`)
   })
@@ -41,8 +42,9 @@ messaging.peerSocket.addEventListener("message", (evt) => {
     },
     body:JSON.stringify(evt.data)
   }).then(function(result) {
+    console.log("Companion - POST " + response.status + ': ' + response.statusText);
     if (!result.ok) {
-      console.log("Companion - POST " + result.status + ': ' + result.statusText);
+      console.log("Companion - POST response !OK -> " + result.status + ': ' + result.statusText);
       return;
     }
     console.log('enviado el paquete...');
