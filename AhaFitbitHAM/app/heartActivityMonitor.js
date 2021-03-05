@@ -1,5 +1,8 @@
-//
-// heartActivityMonitor.js - monitor heart rate at 1 sec intervals with clock at 60 sec interval
+///////////////////////////////////////////////////////////////////////////////
+// heartActivityMonitor.js 
+// - monitor heart rate at 1 sec intervals
+// - update clock at 60 sec interval
+// - upload HR batch message at HRM_BATCH_SIZE metrics per message
 //
 import clock from "clock";
 import document from "document";
@@ -12,21 +15,38 @@ import { display } from "display";
 import { me as appbit} from "appbit";
 import { BodyPresenceSensor } from "body-presence";
 
-// Get a handle on the <text> element
+///////////////////////////////////////////////////////////////////////////////
+// <text> element handles
 const currentTimeLabel = document.getElementById("currentTimeLabel");
 const heartRateLabel = document.getElementById("heartRateLabel");
+// HeartRateSensor object with 1 sec updates
 const hrm = new HeartRateSensor({ frequency: 1 });
 
+// terminate sending batches when MAX reached
 // const BATCH_RELAY_MAX = 8;
 const BATCH_RELAY_MAX = 99999;
+
+// upload HRM_BATCH_SIZE HR metrics message
 // const HRM_BATCH_SIZE = 60;
 const HRM_BATCH_SIZE = 8;
+
+// default message fields
 const NADA_TIMESTAMP = "xx:yy";
+const OFF_BODY_HR_INDICATOR = "---"
+const OFF_BODY_HR_VALUE = 0
+// hrm co
 let batchRelayCount = 0;
 let hrmBatchTimestamp = NADA_TIMESTAMP;
 let hrmCount = 0;
 let hrmBatch = new Array(HRM_BATCH_SIZE);
 
+let onbody = false;
+
+function resetHrmBatch() {
+  for (var i = 0; i < HRM_BATCH_SIZE; i++) hrmBatch[i] = OFF_BODY_HR_VALUE;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 export function getCurrentTimeLabel() {
   return currentTimeLabel.text
 }
@@ -37,8 +57,10 @@ export function start() {
   // set app to not timeout due to inactivity
   appbit.appTimeoutEnabled = false;
   //console.log(`App - id: ${me.Appbit.applicationId} with timeoutEnabled = ${me.appTimeoutEnabled}`);
-  // Update the clock every minute
+  // update the clock every minute
   clock.granularity = "minutes";
+  // reset hrm batch
+  resetHrmBatch();
   
   console.log(`App - message.openMessaging invoked...`);
   message.openMessaging()
@@ -57,30 +79,39 @@ export function start() {
     let mins = util.zeroPad(today.getMinutes());
     currentTimeLabel.text = `${hours}:${mins}`;
     
-    if (hrmBatchTimestamp == NADA_TIMESTAMP) {
-      //hrmBatchTimestamp = currentTimeLabel.text;
-      let secs = util.zeroPad(today.getSeconds());
-      hrmBatchTimestamp = `${hours}:${mins}:${secs}`;
-      console.log(`App - setting batch timestamp: ${hrmBatchTimestamp}`);
-    }
-      // TODO: initial load or resuming after presense off-wrist condition
-      // if ()
-      //   // send reset signal
-      //   hrmBatch[hrmCount] = "--";
-      //   // send batch
-      //   console.log(`App - Open messaging: ${hrmBatchTimestamp} - ${hrmBatch}`);
-      //   message.openMessaging(hrmBatchTimestamp, hrmBatch)
-      // }
+    // set timestamp on clock tick
+    let secs = util.zeroPad(today.getSeconds());
+    hrmBatchTimestamp = getCurrentTimeLabel();
+    console.log(`App - setting batch timestamp: ${hrmBatchTimestamp}`);
   }
+  // BodyPresenceSensor detects on/off body condition
   if (BodyPresenceSensor) {
     const body = new BodyPresenceSensor();
     body.addEventListener("reading", () => {
-      if (!body.present) {
+      if (!body.present) {  // if NOT on-body
+        onbody = false;
+        // stop HR monitor
         hrm.stop();
-        heartRateLabel.text = "--"
-      } else {
+        // append off-body indicator to HR batch
+        hrmBatch[hrmCount++] = OFF_BODY_HR_VALUE
+        heartRateLabel.text = OFF_BODY_HR_INDICATOR
+        // clear batch index
+        hrmCount = 0;
+        // bump relay count
+        ++batchRelayCount;
+        // send message
+        console.log(`App - sendMessage: ${hrmBatchTimestamp} - ${hrmBatch}`);
+        message.sendMessage(hrmBatchTimestamp, hrmBatch);
+        // reset batch after send
+        resetHrmBatch();
+      } else {  // if IS on-body
+        onbody = true;
+        // append off-body indicator to HR batch
+        hrmBatch[hrmCount++] = OFF_BODY_HR_VALUE;
+        heartRateLabel.text = OFF_BODY_HR_INDICATOR;
+        // start HR monitor
         hrm.start();
-        heartRateLabel.text = hrm.heartRate
+        //heartRateLabel.text = hrm.heartRate
       }
     });
     body.start();
@@ -88,26 +119,35 @@ export function start() {
   // update heart rate
   if (HeartRateSensor && appbit.permissions.granted("access_heart_rate")) {
     hrm.addEventListener("reading", () => {
-      console.log(`App - Current heart rate: ${hrm.heartRate}`);
-      heartRateLabel.text = hrm.heartRate
-      
-      // if batches relays is less than allowed max messages
-      if (batchRelayCount < BATCH_RELAY_MAX) {
-        console.log(`App - hrm batch size: ${hrmCount}`);
-        // TODO: if assigning 0, set time
-        // add metric to batch
-        hrmBatch[hrmCount++] = hrm.heartRate;
-        if (hrmCount >= HRM_BATCH_SIZE) {
-          // send batch
-          console.log(`App - Open messaging: ${hrmBatchTimestamp} - ${hrmBatch}`);
-          message.sendMessage(hrmBatchTimestamp, hrmBatch)
-          // clear batch
-          hrmBatchTimestamp = NADA_TIMESTAMP;
-          hrmCount = 0;
-          // bump relay count
-          ++batchRelayCount;
-          console.log(`App - resetting batch timestamp: ${hrmBatchTimestamp} after batch ${batchRelayCount}`);
+      if (onbody) {
+        // show HR reading
+        console.log(`App - Current heart rate: ${hrm.heartRate}`);
+        heartRateLabel.text = hrm.heartRate;
+
+        // if batch relay count is less than allowed max messages
+        if (batchRelayCount < BATCH_RELAY_MAX) {
+          console.log(`App - hrm batch size: ${hrmCount}`);
+          // TODO: if assigning 0, set time
+
+          // add metric to batch
+          hrmBatch[hrmCount++] = hrm.heartRate;
+          if (hrmCount >= HRM_BATCH_SIZE) {
+            // send batch
+            console.log(`App - sendMessage: ${hrmBatchTimestamp} - ${hrmBatch}`);
+            message.sendMessage(hrmBatchTimestamp, hrmBatch);
+            // reset batch after send
+            resetHrmBatch();
+            // clear batch
+            //hrmBatchTimestamp = NADA_TIMESTAMP;
+            hrmCount = 0;
+            // bump relay count
+            ++batchRelayCount;
+            console.log(`App - sending batch timestamp: ${hrmBatchTimestamp} after batch ${batchRelayCount}`);
+          }
         }
+      }
+      else {
+        console.log(`App - NOT sending batch-> batchRelayCount(${batchRelayCount}) !< BATCH_RELAY_MAX(${BATCH_RELAY_MAX})`);
       }
     });
 
