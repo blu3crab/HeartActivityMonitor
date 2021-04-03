@@ -1,6 +1,7 @@
-/*
- * Entry point for the companion app
- */
+///////////////////////////////////////////////////////////////////////////////
+// index.js by  M.A.Tucker 01JAN2021
+// - Entry point for the companion app
+//
 import * as messaging from "messaging";
 
 messaging.peerSocket.addEventListener("open", (evt) => {

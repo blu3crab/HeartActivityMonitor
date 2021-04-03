@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// heartActivityMonitor.js 
+// heartActivityMonitor.js by  M.A.Tucker 01JAN2021
 // - monitor heart rate at 1 sec intervals
 // - update clock at 60 sec interval
 // - upload HR batch message at HRM_BATCH_SIZE metrics per message
@@ -34,25 +34,46 @@ const HRM_BATCH_SIZE = 8;
 const NADA_TIMESTAMP = "xx:yy";
 const OFF_BODY_HR_INDICATOR = "---"
 const OFF_BODY_HR_VALUE = 0
-// hrm co
+// hrm messaging
 let batchRelayCount = 0;
 let hrmBatchTimestamp = NADA_TIMESTAMP;
 let hrmCount = 0;
 let hrmBatch = new Array(HRM_BATCH_SIZE);
 
+let doNotAppendSecs = false;
+let appendSecs = true;
 let onbody = false;
 
+
+///////////////////////////////////////////////////////////////////////////////
 function resetHrmBatch() {
   for (var i = 0; i < HRM_BATCH_SIZE; i++) hrmBatch[i] = OFF_BODY_HR_VALUE;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-export function getCurrentTimeLabel() {
-  return currentTimeLabel.text
+function getCurrentTimeLabel(appendSecs) {
+    let today = new Date();
+    let hours = today.getHours();
+    if (preferences.clockDisplay === "12h") {
+      // 12h format
+      hours = hours % 12 || 12;
+    } else {
+      // 24h format
+      hours = util.zeroPad(hours);
+    }
+    let mins = util.zeroPad(today.getMinutes());
+    let secs = util.zeroPad(today.getSeconds());
+    if (appendSecs) {
+      console.log(`App - getCurrentTimeLabel ${hours}:${mins}:${secs}`);
+      return `${hours}:${mins}:${secs}`;
+    }
+    console.log(`App - getCurrentTimeLabel ${hours}:${mins}`);
+    return `${hours}:${mins}`;
 }
-export function getHeartRate() {
-  return hrm.heartRate
-}
+// export function getCurrentTimeLabel() {
+//   return currentTimeLabel.text
+// }
+// export function getHeartRate() {
+//   return hrm.heartRate
+// }
 export function start() {
   // set app to not timeout due to inactivity
   appbit.appTimeoutEnabled = false;
@@ -67,20 +88,21 @@ export function start() {
 
   // Update the currentTime <text> element every tick with the current time
   clock.ontick = (evt) => {
-    let today = evt.date;
-    let hours = today.getHours();
-    if (preferences.clockDisplay === "12h") {
-      // 12h format
-      hours = hours % 12 || 12;
-    } else {
-      // 24h format
-      hours = util.zeroPad(hours);
-    }
-    let mins = util.zeroPad(today.getMinutes());
-    currentTimeLabel.text = `${hours}:${mins}`;
+    // let today = evt.date;
+    // let hours = today.getHours();
+    // if (preferences.clockDisplay === "12h") {
+    //   // 12h format
+    //   hours = hours % 12 || 12;
+    // } else {
+    //   // 24h format
+    //   hours = util.zeroPad(hours);
+    // }
+    // let mins = util.zeroPad(today.getMinutes());
+    // let secs = util.zeroPad(today.getSeconds());
+    // currentTimeLabel.text = `${hours}:${mins}`;
     
     // set timestamp on clock tick
-    let secs = util.zeroPad(today.getSeconds());
+    currentTimeLabel.text = getCurrentTimeLabel(doNotAppendSecs);
     hrmBatchTimestamp = getCurrentTimeLabel();
     console.log(`App - setting batch timestamp: ${hrmBatchTimestamp}`);
   }
@@ -99,6 +121,8 @@ export function start() {
         hrmCount = 0;
         // bump relay count
         ++batchRelayCount;
+        // get current timestamp
+        hrmBatchTimestamp = getCurrentTimeLabel(appendSecs);
         // send message
         console.log(`App - sendMessage: ${hrmBatchTimestamp} - ${hrmBatch}`);
         message.sendMessage(hrmBatchTimestamp, hrmBatch);
@@ -132,6 +156,8 @@ export function start() {
           // add metric to batch
           hrmBatch[hrmCount++] = hrm.heartRate;
           if (hrmCount >= HRM_BATCH_SIZE) {
+            // get current timestamp
+            hrmBatchTimestamp = getCurrentTimeLabel(appendSecs);
             // send batch
             console.log(`App - sendMessage: ${hrmBatchTimestamp} - ${hrmBatch}`);
             message.sendMessage(hrmBatchTimestamp, hrmBatch);

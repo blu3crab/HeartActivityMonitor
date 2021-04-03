@@ -1,5 +1,6 @@
 // 
-// message.js - wrapper for messaging api
+// message.js by  M.A.Tucker 01JAN2021
+//  - wrapper for messaging api
 //
 import * as messaging from "messaging";
 import * as senseHeartClock from "../senseHeartClock.js"
