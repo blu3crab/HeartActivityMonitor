@@ -22,6 +22,9 @@ const heartRateLabel = document.getElementById("heartRateLabel");
 // HeartRateSensor object with 1 sec updates
 const hrm = new HeartRateSensor({ frequency: 1 });
 
+///////////////////////////////////////////////////////////////////////////////
+// companion app communication
+const COMPANION_MESSAGING_ENABLED = false
 // terminate sending batches when MAX reached
 // const BATCH_RELAY_MAX = 8;
 const BATCH_RELAY_MAX = 99999;
@@ -83,8 +86,11 @@ export function start() {
   // reset hrm batch
   resetHrmBatch();
   
-  console.log(`App - message.openMessaging invoked...`);
-  message.openMessaging()
+  if (COMPANION_MESSAGING_ENABLED) {
+    // open companion messaging
+    console.log(`App - message.openMessaging invoked...`);
+    message.openMessaging();
+  }
 
   // Update the currentTime <text> element every tick with the current time
   clock.ontick = (evt) => {
@@ -123,9 +129,11 @@ export function start() {
         ++batchRelayCount;
         // get current timestamp
         hrmBatchTimestamp = getCurrentTimeLabel(appendSecs);
-        // send message
-        console.log(`App - sendMessage: ${hrmBatchTimestamp} - ${hrmBatch}`);
-        message.sendMessage(hrmBatchTimestamp, hrmBatch);
+        if (COMPANION_MESSAGING_ENABLED) {
+          // send message
+          console.log(`App - sendMessage: ${hrmBatchTimestamp} - ${hrmBatch}`);
+          message.sendMessage(hrmBatchTimestamp, hrmBatch);
+        }
         // reset batch after send
         resetHrmBatch();
       } else {  // if IS on-body
@@ -158,9 +166,11 @@ export function start() {
           if (hrmCount >= HRM_BATCH_SIZE) {
             // get current timestamp
             hrmBatchTimestamp = getCurrentTimeLabel(appendSecs);
-            // send batch
-            console.log(`App - sendMessage: ${hrmBatchTimestamp} - ${hrmBatch}`);
-            message.sendMessage(hrmBatchTimestamp, hrmBatch);
+            if (COMPANION_MESSAGING_ENABLED) {
+              // send batch
+              console.log(`App - sendMessage: ${hrmBatchTimestamp} - ${hrmBatch}`);
+              message.sendMessage(hrmBatchTimestamp, hrmBatch);
+            }
             // reset batch after send
             resetHrmBatch();
             // clear batch
@@ -168,7 +178,7 @@ export function start() {
             hrmCount = 0;
             // bump relay count
             ++batchRelayCount;
-            console.log(`App - sending batch timestamp: ${hrmBatchTimestamp} after batch ${batchRelayCount}`);
+            console.log(`App - reset batch timestamp: ${hrmBatchTimestamp} after batch ${batchRelayCount}`);
           }
         }
       }
@@ -187,10 +197,10 @@ export function start() {
   }
   else if (!appbit.permissions.granted("access_heart_rate")) {
     // show permission not granted
-    heartRateLabel.text = "XX"
+    heartRateLabel.text = "XX";
   }
   else {
     // show heart sensor not available
-    heartRateLabel.text = "..."
+    heartRateLabel.text = "...";
   }
 }

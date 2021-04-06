@@ -5,7 +5,7 @@
   "fitbit": {
     "appUUID": "cc918e1c-a456-4a7b-ab92-616b2adce803",
     "appType": "app",
-    "appDisplayName": "AhaHAM",
+    "appDisplayName": "SimplyHeart",
     "iconFile": "resources/icon.png",
     "wipeColor": "#8bc34a",
     "requestedPermissions": [
@@ -21,7 +21,7 @@
     ],
     "i18n": {
       "en-US": {
-        "name": "AhaHAM"
+        "name": "SimplyHeart"
       }
     },
     "defaultLanguage": "en-US"
