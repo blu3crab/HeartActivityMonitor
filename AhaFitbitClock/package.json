@@ -3,16 +3,18 @@
     "@fitbit/sdk": "~5.0.0"
   },
   "fitbit": {
-    "appUUID": "cc918e1c-a456-4a7b-ab92-616b2adce803",
-    "appType": "app",
-    "appDisplayName": "AhaFitbitCompanion",
+    "appUUID": "f0b7a655-5041-45fd-bcd6-61f2a024f4bd",
+    "appType": "clockface",
+    "appDisplayName": "SimplyHR",
     "iconFile": "resources/icon.png",
-    "wipeColor": "#8bc34a",
+    "wipeColor": "",
     "requestedPermissions": [
-      "access_heart_rate",
+      "access_activity",
       "access_user_profile",
-      "run_background",
-      "access_internet"
+      "access_location",
+      "access_internet",
+      "access_heart_rate",
+      "run_background"
     ],
     "buildTargets": [
       "atlas",
@@ -20,7 +22,7 @@
     ],
     "i18n": {
       "en-US": {
-        "name": "AhaFitbitCompanion"
+        "name": "SimplyHR"
       }
     },
     "defaultLanguage": "en-US"
