@@ -6,7 +6,7 @@ import * as messaging from "messaging";
 
 ///////////////////////////////////////////////////////////////////////////////
 // companion app communication
-const COMPANION_MESSAGING_ENABLED = false
+const COMPANION_MESSAGING_ENABLED = true
 
 if (COMPANION_MESSAGING_ENABLED) {
   messaging.peerSocket.addEventListener("open", (evt) => {

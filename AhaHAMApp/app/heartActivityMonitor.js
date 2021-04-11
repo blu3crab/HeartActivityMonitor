@@ -24,7 +24,7 @@ const hrm = new HeartRateSensor({ frequency: 1 });
 
 ///////////////////////////////////////////////////////////////////////////////
 // companion app communication
-const COMPANION_MESSAGING_ENABLED = false
+const COMPANION_MESSAGING_ENABLED = true
 // terminate sending batches when MAX reached
 // const BATCH_RELAY_MAX = 8;
 const BATCH_RELAY_MAX = 99999;
