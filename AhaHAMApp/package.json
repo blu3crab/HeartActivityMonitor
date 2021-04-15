@@ -3,7 +3,7 @@
     "@fitbit/sdk": "~5.0.0"
   },
   "fitbit": {
-    "appUUID": "cc918e1c-a456-4a7b-ab92-616b2adce803",
+    "appUUID": "ce37f5da-016e-430b-bfc2-a19d3fcaedd7",
     "appType": "app",
     "appDisplayName": "SimplyHeart",
     "iconFile": "resources/icon.png",
