@@ -7,7 +7,7 @@
     "appType": "app",
     "appDisplayName": "SimplyHeart",
     "iconFile": "resources/icon.png",
-    "wipeColor": "#8bc34a",
+    "wipeColor": "#2196f3",
     "requestedPermissions": [
       "access_heart_rate",
       "access_user_profile",
