@@ -39,6 +39,13 @@ export function sendMessage(timestampText, heartRateBatch) {
   }
   console.log(`App - sendMessage at ${timestampText}`);
 
+  // if messaging not ready, attempt open
+  if (messaging.peerSocket.readyState !== messaging.peerSocket.OPEN) {
+    console.log(`App - sendMessage attempts open: messaging.peerSocket.readyState NOT open...`);
+    openMessaging();
+  }
+  
+  // if messaging ready & no buffer overflow
   if (messaging.peerSocket.readyState === messaging.peerSocket.OPEN) {
     if (messaging.peerSocket.bufferedAmount < MESSAGE_BUFFER_MAX) {
       // Send the data to peer as a message
@@ -55,6 +62,6 @@ export function sendMessage(timestampText, heartRateBatch) {
     return false;
   }
   // send failure
-  console.log(`App - messaging.peerSocket.readyState NOT open...`);
+  console.log(`App - sendMessage fails: messaging.peerSocket.readyState NOT open...`);
   return false; 
 }
