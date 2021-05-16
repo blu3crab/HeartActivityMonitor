@@ -1,4 +1,4 @@
-# HeartActivityMonitor
+# HeartActivityMonitor - published in the fitbit gallery as SimplyHeart
 Fitbit on-device &amp; companion app w/ heart shape clock shows 1 second updates &amp; sends HeartRate metric collection every 8 seconds.
 
 <h1> Build with-> FitbitDeveloper IDE: https://studio.fitbit.com
